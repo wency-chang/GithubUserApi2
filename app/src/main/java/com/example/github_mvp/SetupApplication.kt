@@ -8,11 +8,14 @@ import com.example.github_mvp.ui.repository.GithubUserRepository
 class SetupApplication: Application() {
 
     companion object {
-        private val repository: GithubUserRepository? = null
+        @Volatile
+        private var repository: GithubUserRepository? = null
         val instance = this
         fun getRepository(): GithubUserRepository {
-            return repository ?: (synchronized(this) {
-                createRepository()
+            return (synchronized(this) {
+                repository ?: createRepository().also { newRepository ->
+                    repository = newRepository
+                }
             })
         }
         private fun createRepository(): GithubUserRepository = GithubUserRepository(GithubWebClientImp)
